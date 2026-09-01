@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "guardia-agent"
+version = "0.1.0"
+description = "On-call triage agent: evidence-gathering, cited-hypothesis, human-gated LangGraph agent"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+dependencies = [
+    "langgraph==1.2.11",
+    "langchain==1.3.18",
+    "langchain-anthropic==1.7.0",
+    "boto3==1.43.85",
+    "pydantic==2.13.5",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.1.1",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
