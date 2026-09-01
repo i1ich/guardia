@@ -12,12 +12,16 @@ export class GuardiaStateStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // LangGraph checkpointer state. One item per (incident, checkpoint);
-    // TTL matches the anti-decay window rather than being kept forever.
+    // LangGraph checkpointer state, one item per (thread, checkpoint).
+    // Key names are PK/SK, not thread_id/checkpoint_id: this is a single-table
+    // design shared with langgraph-checkpoint-aws's DynamoDBSaver, which
+    // hardcodes those attribute names for both checkpoint and pending-writes
+    // items (see T4 deviation notes). TTL matches the anti-decay window
+    // rather than being kept forever.
     this.checkpointsTable = new dynamodb.Table(this, "CheckpointsTable", {
       tableName: "guardia-checkpoints",
-      partitionKey: { name: "thread_id", type: dynamodb.AttributeType.STRING },
-      sortKey: { name: "checkpoint_id", type: dynamodb.AttributeType.STRING },
+      partitionKey: { name: "PK", type: dynamodb.AttributeType.STRING },
+      sortKey: { name: "SK", type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       timeToLiveAttribute: "ttl",
       removalPolicy: cdk.RemovalPolicy.RETAIN,

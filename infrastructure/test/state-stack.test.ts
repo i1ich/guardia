@@ -10,14 +10,14 @@ function synth(): Template {
   return Template.fromStack(stack);
 }
 
-test("checkpoints table has thread_id/checkpoint_id keys, on-demand billing, and a TTL attribute", () => {
+test("checkpoints table has PK/SK keys, on-demand billing, and a TTL attribute", () => {
   const template = synth();
   template.hasResourceProperties("AWS::DynamoDB::Table", {
     TableName: "guardia-checkpoints",
     BillingMode: "PAY_PER_REQUEST",
     KeySchema: [
-      { AttributeName: "thread_id", KeyType: "HASH" },
-      { AttributeName: "checkpoint_id", KeyType: "RANGE" },
+      { AttributeName: "PK", KeyType: "HASH" },
+      { AttributeName: "SK", KeyType: "RANGE" },
     ],
     TimeToLiveSpecification: { AttributeName: "ttl", Enabled: true },
   });
