@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/guardia/evals/schema/incident.schema.json",
+  "title": "Guardia incident record",
+  "description": "One entry in the incident corpus: the envelope the graph starts from, the evidence gathered, and the labelled ground truth used to grade a run.",
+  "type": "object",
+  "required": [
+    "incident_id",
+    "source_system",
+    "alarm_name",
+    "timestamp",
+    "incident_class",
+    "evidence",
+    "ground_truth_root_cause",
+    "expected_top_3"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "incident_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Stable slug, e.g. 'photolist-ml-403-2026-06-12'."
+    },
+    "source_system": {
+      "type": "string",
+      "enum": ["photolist-latam", "lease-lens"]
+    },
+    "alarm_name": { "type": "string" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "incident_class": {
+      "type": "string",
+      "enum": [
+        "ml-api-403-search",
+        "ml-token-expiry",
+        "deploy-regression",
+        "lambda-timeout-cold-start",
+        "cost-throttling-anomaly"
+      ],
+      "description": "One of the five incident classes this MVP is scoped to."
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "critical"]
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["type", "ref"],
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["log", "metric", "stack_event", "runbook"]
+          },
+          "ref": {
+            "type": "string",
+            "description": "Retrievable reference: a CloudWatch Logs Insights query id + line, a metric datapoint locator, or a stack event id."
+          },
+          "excerpt": {
+            "type": "string",
+            "description": "Redacted excerpt shown alongside the citation."
+          }
+        }
+      }
+    },
+    "ground_truth_root_cause": {
+      "type": "string",
+      "minLength": 1
+    },
+    "expected_top_3": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "items": { "type": "string" }
+    },
+    "notes": { "type": "string" }
+  }
+}
