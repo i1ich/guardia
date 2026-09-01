@@ -1,0 +1,3 @@
+langgraph==1.2.11
+langgraph-checkpoint-aws==1.2.2
+boto3==1.43.85

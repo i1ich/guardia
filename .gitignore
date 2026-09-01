@@ -16,6 +16,7 @@ infrastructure/cdk.out/
 infrastructure/*.d.ts
 infrastructure/*.js
 !infrastructure/jest.config.js
+infrastructure/lambda/*/build/
 
 # Env / secrets
 .env
