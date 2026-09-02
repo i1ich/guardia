@@ -3,6 +3,7 @@ import "source-map-support/register";
 import * as cdk from "aws-cdk-lib";
 import { GuardiaStateStack } from "../lib/state-stack";
 import { GuardiaSpikeStack } from "../lib/spike-stack";
+import { GuardiaIamStack } from "../lib/iam-stack";
 
 const app = new cdk.App();
 
@@ -16,4 +17,11 @@ const stateStack = new GuardiaStateStack(app, "GuardiaStateStack", { env });
 new GuardiaSpikeStack(app, "GuardiaSpikeStack", {
   env,
   checkpointsTableName: stateStack.checkpointsTable.tableName,
+});
+
+new GuardiaIamStack(app, "GuardiaIamStack", {
+  env,
+  checkpointsTableArn: stateStack.checkpointsTable.tableArn,
+  incidentsTableArn: stateStack.incidentsTable.tableArn,
+  runbooksBucketArn: stateStack.runbooksBucket.bucketArn,
 });
