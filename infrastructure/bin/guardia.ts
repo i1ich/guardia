@@ -4,6 +4,7 @@ import * as cdk from "aws-cdk-lib";
 import { GuardiaStateStack } from "../lib/state-stack";
 import { GuardiaSpikeStack } from "../lib/spike-stack";
 import { GuardiaIamStack } from "../lib/iam-stack";
+import { GuardiaIntakeStack } from "../lib/intake-stack";
 
 const app = new cdk.App();
 
@@ -24,4 +25,12 @@ new GuardiaIamStack(app, "GuardiaIamStack", {
   checkpointsTableArn: stateStack.checkpointsTable.tableArn,
   incidentsTableArn: stateStack.incidentsTable.tableArn,
   runbooksBucketArn: stateStack.runbooksBucket.bucketArn,
+});
+
+new GuardiaIntakeStack(app, "GuardiaIntakeStack", {
+  env,
+  checkpointsTableArn: stateStack.checkpointsTable.tableArn,
+  checkpointsTableName: stateStack.checkpointsTable.tableName,
+  incidentsTableArn: stateStack.incidentsTable.tableArn,
+  incidentsTableName: stateStack.incidentsTable.tableName,
 });
