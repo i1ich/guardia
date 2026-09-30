@@ -1,0 +1,25 @@
+[
+  {"class": "ml-api-403-search", "query": "MercadoLibre API returns 403 on search", "expect": ["ml-app-diagnostics"]},
+  {"class": "ml-api-403-search", "query": "api.mercadolibre.com forbidden on catalog search", "expect": ["ml-app-diagnostics"]},
+  {"class": "ml-api-403-search", "query": "search endpoint blocked because the app is not certified", "expect": ["ml-app-diagnostics"]},
+  {"class": "ml-api-403-search", "query": "GET /sites/MLU/search 403 Forbidden", "expect": ["ml-app-diagnostics"]},
+  {"class": "ml-api-403-search", "query": "la busqueda del catalogo devuelve 403 prohibido", "expect": ["ml-app-diagnostics"], "note": "Spanish paraphrase; a stress test, not an expected pass"},
+
+  {"class": "ml-token-expiry", "query": "MercadoLibre access token expired", "expect": ["mercadolibre-refresh-token", "ml-oauth-flow"]},
+  {"class": "ml-token-expiry", "query": "401 unauthorized invalid_token from mercadolibre", "expect": ["mercadolibre-refresh-token", "ml-oauth-flow"]},
+  {"class": "ml-token-expiry", "query": "refresh token rejected, need to renew the ML token", "expect": ["mercadolibre-refresh-token", "ml-oauth-flow"]},
+  {"class": "ml-token-expiry", "query": "MercadoLibre access or refresh token expired", "expect": ["mercadolibre-refresh-token", "ml-oauth-flow"], "note": "the exact search_runbook query plan.py emits"},
+
+  {"class": "deploy-regression", "query": "errors started right after a deploy, redeploy the stack", "expect": ["cdk-deploy-and-smoke-test"]},
+  {"class": "deploy-regression", "query": "Deploy regression rollback or redeploy", "expect": ["cdk-deploy-and-smoke-test"], "note": "the exact search_runbook query plan.py emits"},
+  {"class": "deploy-regression", "query": "smoke test failing after cdk deploy", "expect": ["cdk-deploy-and-smoke-test"]},
+  {"class": "deploy-regression", "query": "new lambda version broke the upload endpoint", "expect": ["cdk-deploy-and-smoke-test"]},
+
+  {"class": "operational", "query": "cloudshell session timed out and my variables are gone", "expect": ["aws-cloudshell-session"]},
+
+  {"class": "lambda-timeout-cold-start", "query": "Lambda timeout or cold start latency", "expect": [], "note": "no runbook exists for this class; empty is the correct answer"},
+  {"class": "cost-throttling-anomaly", "query": "Lambda throttling or cost anomaly", "expect": [], "note": "no runbook exists for this class; empty is the correct answer"},
+  {"class": "undetermined", "query": "Lambda errors after an alarm, cause unknown", "expect": [], "note": "the exact search_runbook query plan.py emits for undetermined"},
+  {"class": "unrelated", "query": "DynamoDB table throttled writes", "expect": []},
+  {"class": "unrelated", "query": "what is the capital of Uruguay", "expect": []}
+]
