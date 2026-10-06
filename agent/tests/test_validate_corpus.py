@@ -35,3 +35,19 @@ def test_schema_error_fails(tmp_path):
     del bad["evidence"]
     (tmp_path / "bad.json").write_text(json.dumps(bad))
     assert validate(tmp_path) == 1
+
+
+def test_commit_and_memory_evidence_are_valid_but_not_m3_eligible(tmp_path, capsys):
+    rec = _incident("mem-1")
+    rec["evidence"] = [{"type": "memory", "ref": "operator recollection"}, {"type": "commit", "ref": "abc123"}]
+    (tmp_path / "mem-1.json").write_text(json.dumps(rec))
+    assert validate(tmp_path) == 0
+    assert "not M3/held-out eligible" in capsys.readouterr().out
+
+
+def test_incident_with_one_retrievable_item_is_eligible(tmp_path, capsys):
+    rec = _incident("mixed-1")
+    rec["evidence"].append({"type": "commit", "ref": "abc123"})
+    (tmp_path / "mixed-1.json").write_text(json.dumps(rec))
+    validate(tmp_path)
+    assert "not M3/held-out eligible" not in capsys.readouterr().out

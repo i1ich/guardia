@@ -27,6 +27,14 @@ REQUIRED_INCIDENT_CLASSES = {
     "cost-throttling-anomaly",
 }
 MIN_INCIDENTS = 6
+# Evidence the T6/T17 tools can fetch. An incident with none of these cannot
+# satisfy M3 (every claim cites retrievable evidence) and is excluded from
+# M3 and held-out scoring; it still serves classification tests.
+RETRIEVABLE_EVIDENCE_TYPES = {"log", "metric", "stack_event", "runbook"}
+
+
+def m3_eligible(record: dict) -> bool:
+    return any(e.get("type") in RETRIEVABLE_EVIDENCE_TYPES for e in record.get("evidence", []))
 
 
 def validate(corpus_dir: Path) -> int:
@@ -45,6 +53,7 @@ def validate(corpus_dir: Path) -> int:
     errors = 0
     seen_classes: set[str] = set()
     seen_ids: set[str] = set()
+    ineligible: list[str] = []
 
     for path in incident_files:
         record = json.loads(path.read_text())
@@ -57,8 +66,13 @@ def validate(corpus_dir: Path) -> int:
             print(f"{path.name}: duplicate incident_id '{incident_id}'")
         seen_ids.add(incident_id)
         seen_classes.add(record.get("incident_class"))
+        if not m3_eligible(record):
+            ineligible.append(str(incident_id))
 
     print(f"checked {len(incident_files)} incident(s), {errors} schema error(s)")
+
+    if ineligible:
+        print(f"not M3/held-out eligible (no retrievable evidence): {ineligible}")
 
     missing_classes = REQUIRED_INCIDENT_CLASSES - seen_classes
     if missing_classes:

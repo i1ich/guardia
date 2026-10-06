@@ -52,7 +52,8 @@
         "properties": {
           "type": {
             "type": "string",
-            "enum": ["log", "metric", "stack_event", "runbook"]
+            "enum": ["log", "metric", "stack_event", "runbook", "commit", "memory"],
+            "description": "log, metric, stack_event and runbook are retrievable with the T6/T17 tools. commit (a git commit or repository source reference) and memory (the operator's recollection) are not: an incident whose evidence is only of those types is excluded from M3 and held-out scoring."
           },
           "ref": {
             "type": "string",
