@@ -39,13 +39,13 @@ jobs:
           python-version: "3.12"
       - run: npm ci
         working-directory: infrastructure
+      # The T4 spike Lambda is vendored, not bundled; the spike stack tests and synth need the build dir.
+      - run: bash infrastructure/lambda/t4-spike/build.sh
       - run: npx tsc --noEmit
         working-directory: infrastructure
       # Includes the T8 policy snapshot tests: the build fails if either
       # role is granted an action outside its declared allow-list.
       - run: npx jest
         working-directory: infrastructure
-      # The T4 spike Lambda is vendored, not bundled; synth needs the build dir.
-      - run: bash infrastructure/lambda/t4-spike/build.sh
       - run: npx cdk synth --quiet
         working-directory: infrastructure
