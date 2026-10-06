@@ -21,6 +21,7 @@ dev = [
     "pytest==9.1.1",
     "jsonschema==4.26.0",
     "moto[all]==5.1.14",
+    "pyyaml==6.0.3",
 ]
 
 [tool.setuptools.packages.find]

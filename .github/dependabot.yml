@@ -1,0 +1,17 @@
+# Anti-decay rule 3: pinned versions, bumped monthly. Dependabot opens one PR
+# per ecosystem per month; CI decides whether the bump still builds.
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /agent
+    schedule: { interval: monthly }
+    groups:
+      python: { patterns: ["*"] }
+  - package-ecosystem: npm
+    directory: /infrastructure
+    schedule: { interval: monthly }
+    groups:
+      npm: { patterns: ["*"] }
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: monthly }

@@ -1,0 +1,49 @@
+name: deploy
+
+# Deploys to sa-east-1 after CI is green on main. Needs a GitHub OIDC role in
+# the AWS account; set the repository variable AWS_DEPLOY_ROLE_ARN to enable.
+# Until then the job is skipped, not failed.
+
+on:
+  workflow_run:
+    workflows: [ci]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: >-
+      vars.AWS_DEPLOY_ROLE_ARN != '' &&
+      (github.event_name == 'workflow_dispatch' ||
+       github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: infrastructure/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: sa-east-1
+      - run: npm ci
+        working-directory: infrastructure
+      - run: bash infrastructure/lambda/t4-spike/build.sh
+      - run: npx cdk deploy --all --require-approval never
+        working-directory: infrastructure

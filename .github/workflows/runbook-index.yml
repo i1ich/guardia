@@ -1,0 +1,40 @@
+name: runbook-index
+
+# Rebuilds the T17 BM25 index from the private runbook sources and uploads it.
+# Needs: secret GUARDIA_PRIVATE_TOKEN (read access to guardia-private) and
+# repository variable AWS_DEPLOY_ROLE_ARN. Skipped until both exist.
+
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [runbooks-changed]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  rebuild:
+    if: vars.AWS_DEPLOY_ROLE_ARN != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/guardia-private
+          token: ${{ secrets.GUARDIA_PRIVATE_TOKEN }}
+          path: guardia-private
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e "agent[dev]"
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: sa-east-1
+      - name: Retrieval eval gate (T17)
+        run: python evals/retrieval_eval.py guardia-private/runbooks
+      - name: Rebuild and upload index
+        run: |
+          account=$(aws sts get-caller-identity --query Account --output text)
+          python scripts/build_runbook_index.py guardia-private/runbooks             --upload-bucket "guardia-runbooks-${account}-sa-east-1"

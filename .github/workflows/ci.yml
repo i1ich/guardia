@@ -1,0 +1,51 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: agent/pyproject.toml
+      - run: pip install -e "agent[dev]"
+      # Unit tests mock AWS with moto; live tests stay skipped without
+      # GUARDIA_LIVE_AWS_TESTS=1, so CI needs no AWS credentials.
+      - run: python -m pytest -q
+        working-directory: agent
+
+  infrastructure:
+    runs-on: ubuntu-latest
+    env:
+      CDK_DEFAULT_ACCOUNT: "000000000000"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: infrastructure/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: npm ci
+        working-directory: infrastructure
+      - run: npx tsc --noEmit
+        working-directory: infrastructure
+      # Includes the T8 policy snapshot tests: the build fails if either
+      # role is granted an action outside its declared allow-list.
+      - run: npx jest
+        working-directory: infrastructure
+      # The T4 spike Lambda is vendored, not bundled; synth needs the build dir.
+      - run: bash infrastructure/lambda/t4-spike/build.sh
+      - run: npx cdk synth --quiet
+        working-directory: infrastructure

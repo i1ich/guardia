@@ -33,7 +33,11 @@ def validate(corpus_dir: Path) -> int:
     schema = json.loads(SCHEMA_PATH.read_text())
     validator = Draft202012Validator(schema)
 
-    incident_files = sorted(corpus_dir.glob("*.json"))
+    # _placeholder-* files only prove the schema shape; they are not incidents
+    # and must not count toward MIN_INCIDENTS or class coverage.
+    incident_files = sorted(
+        p for p in corpus_dir.glob("*.json") if not p.name.startswith("_placeholder-")
+    )
     if not incident_files:
         print(f"no incident files found in {corpus_dir}", file=sys.stderr)
         return 1
