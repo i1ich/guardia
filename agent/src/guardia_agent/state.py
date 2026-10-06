@@ -22,5 +22,15 @@ class IncidentState(TypedDict, total=False):
     classification_source: str  # rules | llm | fallback:<reason>
     evidence_plan: list[dict[str, Any]]  # [{"tool", "args", "purpose"}]
     evidence: list[dict[str, Any]]
+    iteration: int  # gather rounds completed (T10)
+    executed_steps: list[str]  # canonical keys of tool calls already run
+    pending_steps: list[dict[str, Any]]  # model-requested follow-up reads
+    new_evidence_count: int
+    hypotheses: list[dict[str, Any]]  # ranked, every claim cited
+    dropped_claims: list[dict[str, Any]]  # uncited/unknown-id claims removed by the parser (M3 input)
+    tokens_used: int
+    sufficient: bool
+    handoff_reason: str  # token-budget | max-iterations | no-new-evidence
+    outcome: str  # hypotheses-ready | needs-human
     now_epoch: float  # test seam; defaults to time.time()
     _redactor: Any
