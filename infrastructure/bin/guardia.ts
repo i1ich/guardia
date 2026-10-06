@@ -5,6 +5,7 @@ import { GuardiaStateStack } from "../lib/state-stack";
 import { GuardiaSpikeStack } from "../lib/spike-stack";
 import { GuardiaIamStack } from "../lib/iam-stack";
 import { GuardiaIntakeStack } from "../lib/intake-stack";
+import { GuardiaInjectStack } from "../lib/inject-stack";
 
 const app = new cdk.App();
 
@@ -27,10 +28,15 @@ new GuardiaIamStack(app, "GuardiaIamStack", {
   runbooksBucketArn: stateStack.runbooksBucket.bucketArn,
 });
 
-new GuardiaIntakeStack(app, "GuardiaIntakeStack", {
+const intakeStack = new GuardiaIntakeStack(app, "GuardiaIntakeStack", {
   env,
   checkpointsTableArn: stateStack.checkpointsTable.tableArn,
   checkpointsTableName: stateStack.checkpointsTable.tableName,
   incidentsTableArn: stateStack.incidentsTable.tableArn,
   incidentsTableName: stateStack.incidentsTable.tableName,
+});
+
+new GuardiaInjectStack(app, "GuardiaInjectStack", {
+  env,
+  alarmTopicArn: intakeStack.alarmTopic.topicArn,
 });
